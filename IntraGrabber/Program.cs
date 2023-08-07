@@ -1,4 +1,4 @@
-using IntraCalendarGrabber;
+using IntraGrabber;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,17 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddOptions();
 builder.Services.AddMemoryCache();
-builder.Services.Configure<CalendarOptions>(builder.Configuration.GetSection("CalendarService"));
+builder.Services.Configure<IntraGrabberOptions>(builder.Configuration.GetSection("IntraGrabber"));
 
-CalendarOptions calendarOptions = new CalendarOptions();
-builder.Configuration.GetSection("CalendarService").Bind(calendarOptions);
+IntraGrabberOptions intraGrabberOptions = new IntraGrabberOptions();
+builder.Configuration.GetSection("IntraGrabber").Bind(intraGrabberOptions);
 
 builder.Services.AddTransient<IntraAuthenticationHandler>();
-builder.Services.AddHttpClient<IIntraAuthenticationService, IntraAuthenticationService>()
-    .ConfigureHttpClient(c => c.BaseAddress = calendarOptions.BaseAddress);
+builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<IWeekPlansService, WeekPlansService>();
 
-builder.Services.AddHttpClient<ICalendarService, CalendarService>()
-    .ConfigureHttpClient(c => c.BaseAddress = calendarOptions.BaseAddress)
+builder.Services.AddHttpClient<IIntraAuthenticationService, IntraAuthenticationService>()
+    .ConfigureHttpClient(c => c.BaseAddress = intraGrabberOptions.BaseAddress);
+
+builder.Services.AddHttpClient("IntraGrabber")
+    .ConfigureHttpClient(c => c.BaseAddress = intraGrabberOptions.BaseAddress)
     .AddHttpMessageHandler<IntraAuthenticationHandler>();
 
 builder.Services.AddControllers();

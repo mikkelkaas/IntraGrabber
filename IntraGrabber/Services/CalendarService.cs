@@ -1,36 +1,36 @@
-﻿using IntraCalendarGrabber.Models;
+﻿using IntraGrabber.Models;
 
-namespace IntraCalendarGrabber.Services;
+namespace IntraGrabber.Services;
 
 public class CalendarService : ICalendarService
 {
     private readonly HttpClient _httpClient;
-    private readonly CalendarOptions _options;
+    private readonly IntraGrabberOptions _options;
 
-    public CalendarService(HttpClient httpClient, IOptions<CalendarOptions> options)
+    public CalendarService(IHttpClientFactory clientFactory, IOptions<IntraGrabberOptions> options)
     {
-        _httpClient = httpClient;
+        _httpClient = clientFactory.CreateClient("IntraGrabber");
         _options = options.Value;
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 
-    public async Task<IReadOnlyCollection<Item>> GetItemsAsync(int daysAhead)
+    public async Task<IReadOnlyCollection<CalendarItem>> GetItemsAsync(int daysAhead)
     {
         var s = DateTime.Today.ToSecondsSinceEpoch();
         var e = DateTime.Today.AddDays(daysAhead).ToSecondsSinceEpoch();
         var n = DateTime.Now.ToMillisecondsSinceEpoch();
 
-        var url = string.Format(_options.UrlFormatString, _options.ClassName, s, e, n);
+        var url = string.Format(_options.LessonFormatString, _options.ClassName, s, e, n, _options.ParentId, _options.ChildName);
 
         var response = await _httpClient.GetAsync(url);
 
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
-            var some = JsonSerializer.Deserialize<Item[]>(json);
+            var some = JsonSerializer.Deserialize<CalendarItem[]>(json);
             return some;
         }
 
-        return new Item[0];
+        return new CalendarItem[0];
     }
 }

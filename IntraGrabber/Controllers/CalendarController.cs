@@ -1,8 +1,8 @@
-﻿using IntraCalendarGrabber.Helpers;
-using IntraCalendarGrabber.Models;
-using IntraCalendarGrabber.Services;
+﻿using IntraGrabber.Helpers;
+using IntraGrabber.Models;
+using IntraGrabber.Services;
 
-namespace IntraCalendarGrabber.Controllers;
+namespace IntraGrabber.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -19,7 +19,7 @@ public class CalendarController : ControllerBase
     [HttpGet("/json")]
     public async Task<IActionResult> GetJson(int daysAhead = 7)
     {
-        IEnumerable<Item> items = await _calendarService.GetItemsAsync(daysAhead);
+        IEnumerable<CalendarItem> items = await _calendarService.GetItemsAsync(daysAhead);
 
         items = CalendarConverter.GroupByTitleAndTime(items);
         items = CalendarConverter.GroupByTitleAndStaff(items);
@@ -31,7 +31,7 @@ public class CalendarController : ControllerBase
     [HttpGet("/ical")]
     public async Task<IActionResult> GetICal(int daysAhead = 7)
     {
-        IEnumerable<Item> items = await _calendarService.GetItemsAsync(daysAhead);
+        IEnumerable<CalendarItem> items = await _calendarService.GetItemsAsync(daysAhead);
         items = CalendarConverter.GroupByTitleAndTime(items);
         items = CalendarConverter.GroupByTitleAndStaff(items);
         var calendar = CalendarConverter.ConvertToCalendar(items);

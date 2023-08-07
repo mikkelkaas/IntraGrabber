@@ -1,20 +1,20 @@
 using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace IntraCalendarGrabber.Services;
+namespace IntraGrabber.Services;
 
 internal class IntraAuthenticationService : IIntraAuthenticationService
 {
-    private readonly CalendarOptions _calendarOptions;
+    private readonly IntraGrabberOptions _intraGrabberOptions;
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _memoryCache;
 
     public IntraAuthenticationService(HttpClient httpClient, IMemoryCache memoryCache,
-        IOptions<CalendarOptions> calendarOptions)
+        IOptions<IntraGrabberOptions> intraGrabberOptions)
     {
         _httpClient = httpClient;
         _memoryCache = memoryCache;
-        _calendarOptions = calendarOptions.Value;
+        _intraGrabberOptions = intraGrabberOptions.Value;
     }
 
     public async Task<string?> GetLoginCookie()
@@ -36,8 +36,8 @@ internal class IntraAuthenticationService : IIntraAuthenticationService
             {
                 new("__RequestVerificationToken", requestVerificationToken),
                 new("RoleType", "Parent"),
-                new("UserName", _calendarOptions.LoginUsername),
-                new("Password", _calendarOptions.LoginPassword)
+                new("UserName", _intraGrabberOptions.LoginUsername),
+                new("Password", _intraGrabberOptions.LoginPassword)
             };
             using var contentForLogin = new FormUrlEncodedContent(loginParams);
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,
@@ -64,7 +64,7 @@ internal class IntraAuthenticationService : IIntraAuthenticationService
             var samlResponseResponse = await _httpClient.SendAsync(samlResponseRequestMessage);
             var finalCookies = samlResponseResponse.ExtractCookies();
             // get the value of the cookie with name _calendarOptions.CookieName
-            cookieValue = finalCookies.Where(x => x.Name == _calendarOptions.CookieName).Select(x => x.Value)
+            cookieValue = finalCookies.Where(x => x.Name == _intraGrabberOptions.CookieName).Select(x => x.Value)
                 .FirstOrDefault();
 
             _memoryCache.Set("AspAuth", cookieValue, new DateTimeOffset(DateTime.Now.AddHours(1)));

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntraCalendarGrabber", "IntraCalendarGrabber\IntraCalendarGrabber.csproj", "{DF0325D1-79BF-4899-B887-26F245F57F62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntraGrabber", "IntraGrabber\IntraGrabber.csproj", "{DF0325D1-79BF-4899-B887-26F245F57F62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,32 +2,32 @@
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
-using IntraCalendarGrabber.Models;
+using IntraGrabber.Models;
 
-namespace IntraCalendarGrabber.Helpers;
+namespace IntraGrabber.Helpers;
 
 public static class CalendarConverter
 {
-    private static CalendarEvent ConvertToCalendarEvent(Item item)
+    private static CalendarEvent ConvertToCalendarEvent(CalendarItem calendarItem)
     {
-        var staff = string.IsNullOrEmpty(item.StaffName) ?
+        var staff = string.IsNullOrEmpty(calendarItem.StaffName) ?
             string.Empty :
-            $" ({item.StaffName?.Split(' ')[0]})";
+            $" ({calendarItem.StaffName?.Split(' ')[0]})";
 
-        var summary = $"{item.Title}{staff}";
+        var summary = $"{calendarItem.Title}{staff}";
 
         return new CalendarEvent
         {
-            Uid = item.Id,
+            Uid = calendarItem.Id,
             Summary = summary,
-            Location = item.Location.FirstOrDefault(),
-            Start = new CalDateTime(item.Start, "Europe/Copenhagen"),
-            End = new CalDateTime(item.End, "Europe/Copenhagen"),
-            IsAllDay = item.AllDay
+            Location = calendarItem.Location.FirstOrDefault(),
+            Start = new CalDateTime(calendarItem.Start, "Europe/Copenhagen"),
+            End = new CalDateTime(calendarItem.End, "Europe/Copenhagen"),
+            IsAllDay = calendarItem.AllDay
         };
     }
 
-    public static Calendar ConvertToCalendar(IEnumerable<Item> items)
+    public static Calendar ConvertToCalendar(IEnumerable<CalendarItem> items)
     {
         var calendar = new Calendar();
 
@@ -39,13 +39,13 @@ public static class CalendarConverter
         return calendar;
     }
 
-    public static IEnumerable<Item> GroupByTitleAndTime(IEnumerable<Item> items)
+    public static IEnumerable<CalendarItem> GroupByTitleAndTime(IEnumerable<CalendarItem> items)
     {
         return from i in items
                group i by new { i.Title, i.Start, i.End } into g
                let f = g.First()
                let s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct()
-               select new Item
+               select new CalendarItem
                {
                    Id = f.Id,
                    Title = f.Title,
@@ -57,9 +57,9 @@ public static class CalendarConverter
                };
     }
     
-    public static IEnumerable<Item> GroupByTitleAndStaff(IEnumerable<Item> items)
+    public static IEnumerable<CalendarItem> GroupByTitleAndStaff(IEnumerable<CalendarItem> items)
     {
-        var current = default(Item);
+        var current = default(CalendarItem);
     
         foreach (var item in items.OrderBy(i => i.Start))
         {

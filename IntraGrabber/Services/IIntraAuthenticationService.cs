@@ -1,4 +1,4 @@
-﻿namespace IntraCalendarGrabber.Services;
+﻿namespace IntraGrabber.Services;
 
 public interface IIntraAuthenticationService
 {

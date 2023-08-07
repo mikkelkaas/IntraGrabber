@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
 
-namespace IntraCalendarGrabber.Helpers;
+namespace IntraGrabber.Helpers;
 
 public static class Extensions
 {

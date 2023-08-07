@@ -1,6 +1,6 @@
-﻿namespace IntraCalendarGrabber.Models;
+﻿namespace IntraGrabber.Models;
 
-public class Item : IEquatable<Item>
+public class CalendarItem : IEquatable<CalendarItem>
 {
     [System.Text.Json.Serialization.JsonPropertyName("id")]
     public string Id { get; set; }
@@ -29,7 +29,7 @@ public class Item : IEquatable<Item>
     [System.Text.Json.Serialization.JsonPropertyName("allDay")]
     public bool AllDay { get; set; }
 
-    public bool Equals(Item other)
+    public bool Equals(CalendarItem other)
     {
         if (other == null)
         {
