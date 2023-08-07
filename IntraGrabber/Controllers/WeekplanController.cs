@@ -18,6 +18,7 @@ public class WeekplanController : ControllerBase
 
     // GET api/calendar/json
     [HttpGet()]
+    [ResponseCache(Duration = 43200, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new []{"nextWeek"})]
     public async Task<IActionResult> Get(bool nextWeek = false)
     {
 

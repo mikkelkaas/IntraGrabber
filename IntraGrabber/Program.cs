@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddOptions();
 builder.Services.AddMemoryCache();
+builder.Services.AddResponseCaching();
+
 builder.Services.Configure<IntraGrabberOptions>(builder.Configuration.GetSection("IntraGrabber"));
 
 IntraGrabberOptions intraGrabberOptions = new IntraGrabberOptions();
@@ -32,6 +34,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseResponseCaching();
 
 app.UseHttpsRedirection();
 
