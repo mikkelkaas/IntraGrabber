@@ -4,5 +4,5 @@ namespace IntraGrabber.Services;
 
 public interface ICalendarService
 {
-    Task<IReadOnlyCollection<CalendarItem>> GetItemsAsync(int daysAhead);
+    Task<IReadOnlyCollection<CalendarItem>> GetCalenderItems(int daysAhead);
 }

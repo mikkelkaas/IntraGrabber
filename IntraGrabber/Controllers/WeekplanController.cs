@@ -1,9 +1,4 @@
-﻿using System.Globalization;
-using IntraGrabber.Helpers;
-using IntraGrabber.Models;
-using IntraGrabber.Services;
-
-namespace IntraGrabber.Controllers;
+﻿namespace IntraGrabber.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -17,12 +12,10 @@ public class WeekplanController : ControllerBase
     }
 
     // GET api/calendar/json
-    [HttpGet()]
+    [HttpGet("json")]
     [ResponseCache(Duration = 43200, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new []{"nextWeek"})]
     public async Task<IActionResult> Get(bool nextWeek = false)
     {
-
-        
         var plan = await _weekPlansService.GetWeekplan(nextWeek);
         return Ok(plan);
     }

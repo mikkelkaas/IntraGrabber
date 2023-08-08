@@ -14,7 +14,7 @@ public class CalendarService : ICalendarService
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 
-    public async Task<IReadOnlyCollection<CalendarItem>> GetItemsAsync(int daysAhead)
+    public async Task<IReadOnlyCollection<CalendarItem>> GetCalenderItems(int daysAhead)
     {
         var s = DateTime.Today.ToSecondsSinceEpoch();
         var e = DateTime.Today.AddDays(daysAhead).ToSecondsSinceEpoch();

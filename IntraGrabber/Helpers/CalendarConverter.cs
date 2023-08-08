@@ -41,20 +41,25 @@ public static class CalendarConverter
 
     public static IEnumerable<CalendarItem> GroupByTitleAndTime(IEnumerable<CalendarItem> items)
     {
-        return from i in items
-               group i by new { i.Title, i.Start, i.End } into g
-               let f = g.First()
-               let s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct()
-               select new CalendarItem
-               {
-                   Id = f.Id,
-                   Title = f.Title,
-                   Start = f.Start,
-                   End = f.End,
-                   StaffName = string.Join("/", s),
-                   Location = f.Location,
-                   AllDay = f.AllDay
-               };
+        var groups = items.GroupBy(i => new {i.Start, i.End});
+        foreach (var g in groups)
+        {
+            CalendarItem f = g.First();
+            IEnumerable<string> t = g.Where(h => !string.IsNullOrWhiteSpace(h.Title)).OrderBy(h => h.Title).Select(h => h.Title).Distinct();
+            // string someString = string.Join("/", t);
+            
+            IEnumerable<string> s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct();
+            yield return new CalendarItem
+            {
+                Id = f.Id,
+                Title = f.Title,
+                Start = f.Start,
+                End = f.End,
+                StaffName = string.Join("/", s),
+                Location = f.Location,
+                AllDay = f.AllDay
+            };
+        }
     }
     
     public static IEnumerable<CalendarItem> GroupByTitleAndStaff(IEnumerable<CalendarItem> items)

@@ -16,6 +16,7 @@ builder.Configuration.GetSection("IntraGrabber").Bind(intraGrabberOptions);
 builder.Services.AddTransient<IntraAuthenticationHandler>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<IWeekPlansService, WeekPlansService>();
+builder.Services.AddScoped<IPinService, PinService>();
 
 builder.Services.AddHttpClient<IIntraAuthenticationService, IntraAuthenticationService>()
     .ConfigureHttpClient(c => c.BaseAddress = intraGrabberOptions.BaseAddress);
