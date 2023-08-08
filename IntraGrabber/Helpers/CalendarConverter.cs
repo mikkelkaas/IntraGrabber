@@ -46,13 +46,13 @@ public static class CalendarConverter
         {
             CalendarItem f = g.First();
             IEnumerable<string> t = g.Where(h => !string.IsNullOrWhiteSpace(h.Title)).OrderBy(h => h.Title).Select(h => h.Title).Distinct();
-            // string someString = string.Join("/", t);
+            string combinedTitle = string.Join("/", t);
             
             IEnumerable<string> s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct();
             yield return new CalendarItem
             {
                 Id = f.Id,
-                Title = f.Title,
+                Title = combinedTitle,
                 Start = f.Start,
                 End = f.End,
                 StaffName = string.Join("/", s),
