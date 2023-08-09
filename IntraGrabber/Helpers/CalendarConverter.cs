@@ -64,35 +64,32 @@ public static class CalendarConverter
     
     public static IEnumerable<CalendarItem> GroupByTitleAndStaff(IEnumerable<CalendarItem> items)
     {
-        var current = default(CalendarItem);
-    
+        var groupedItems = new List<CalendarItem>();
+        CalendarItem previousItem = null;
+
         foreach (var item in items.OrderBy(i => i.Start))
         {
-            if (current == null)
+            if (previousItem == null)
             {
-                current = item;
+                groupedItems.Add(item);
+                previousItem = item;
                 continue;
             }
-    
-            if (current.Start.Date != item.Start.Date)
+
+            if (previousItem.Title == item.Title &&
+                previousItem.StaffName == item.StaffName &&
+                previousItem.End == item.Start)
             {
-                yield return current;
-                current = item;
-                continue;
+                previousItem.End = item.End;
             }
-    
-            if (current.Title != item.Title ||
-                current.StaffName != item.StaffName)
+            else
             {
-                yield return current;
-                current = item;
-                continue;
+                groupedItems.Add(item);
+                previousItem = item;
             }
-    
-            current.End = item.End;
         }
-    
-        yield return current;
+
+        return groupedItems;
     }
     
     public static string Serialize(Calendar calendar)
