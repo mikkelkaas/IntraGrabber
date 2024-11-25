@@ -41,14 +41,14 @@ public static class CalendarConverter
 
     public static IEnumerable<CalendarItem> GroupByTitleAndTime(IEnumerable<CalendarItem> items)
     {
-        var groups = items.GroupBy(i => new {i.Start, i.End});
+        var groups = items.GroupBy(i => new { i.Start, i.End });
         foreach (var g in groups)
         {
             CalendarItem f = g.First();
             IEnumerable<string> t = g.Where(h => !string.IsNullOrWhiteSpace(h.Title)).OrderBy(h => h.Title).Select(h => h.Title).Distinct();
             string combinedTitle = string.Join("/", t);
-            
-            IEnumerable<string> s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct();
+
+            IEnumerable<string> s = g.Where(h => !string.IsNullOrWhiteSpace(h.StaffName)).OrderBy(h => h.StaffName).Select(h => h.StaffName.Split(' ')[0]).Distinct().Reverse();
             yield return new CalendarItem
             {
                 Id = f.Id,
