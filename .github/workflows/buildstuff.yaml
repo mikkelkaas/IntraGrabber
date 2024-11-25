@@ -48,20 +48,20 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-#  deploy-using-ssh:
-#    needs: build-and-push-image
-#    runs-on: ubuntu-latest
-#    if: ${{ github.event.workflow_run.conclusion != 'failure' }}
-#    steps:
-#      - name: remote docker-compose up via ssh
-#        uses: appleboy/ssh-action@v0.1.5
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USER_DEPLOYMENT }}
-#          key: ${{ secrets.SSH_PRIVATEKEY_DEPLOYMENT }}
-#          port: 22
-#          script: |
-#            cd ~/docker/cruttelut
-#            docker compose stop cruttelut
-#            docker compose pull cruttelut
-#            docker compose up cruttelut -d
+  deploy-using-ssh:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'failure' }}
+    steps:
+      - name: remote docker-compose up via ssh
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER_DEPLOYMENT }}
+          key: ${{ secrets.SSH_PRIVATEKEY_DEPLOYMENT }}
+          port: 22
+          script: |
+            cd ~/docker/intragrabber
+            docker compose stop 
+            docker compose pull
+            docker compose up -d
