@@ -61,7 +61,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATEKEY_DEPLOYMENT }}
           port: 22
           script: |
-            cd ~/docker/intragrabber
+            cd ~/docker/intracalendargrabber
             docker compose stop 
             docker compose pull
             docker compose up -d
