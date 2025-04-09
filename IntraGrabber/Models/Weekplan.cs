@@ -3,6 +3,7 @@
 public class Weekplan
 {
     public SelectedPlan SelectedPlan { get; set; }
+    public int? WeekNumber { get; set; } = null;
 }
 
 public class SelectedPlan

@@ -103,6 +103,16 @@ public class WeekPlansService(IHttpClientFactory clientFactory, IOptions<IntraGr
         if (weekplan?.SelectedPlan == null)
             return weekplan;
 
+        // Set the week number if there are any daily plans
+        if (weekplan.SelectedPlan.DailyPlans?.Any() == true)
+        {
+            // Try to parse the date from the first daily plan
+            if (DateTime.TryParse(weekplan.SelectedPlan.DailyPlans.First().Date, out var planDate))
+            {
+                weekplan.WeekNumber = ISOWeek.GetWeekOfYear(planDate);
+            }
+        }
+
         // Format GeneralPlan if it exists
         if (weekplan.SelectedPlan.GeneralPlan?.LessonPlans != null)
         {
