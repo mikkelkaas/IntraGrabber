@@ -19,4 +19,16 @@ public class WeekplanController : ControllerBase
         var plan = await _weekPlansService.GetWeekplan(nextWeek);
         return Ok(plan);
     }
+    
+    // GET weekplan/today
+    [HttpGet("today")]
+    [ResponseCache(Duration = 60*30, Location = ResponseCacheLocation.Any)]
+    public async Task<IActionResult> GetToday()
+    {
+        var plan = await _weekPlansService.GetSimplifiedWeekplanForToday();
+        if (plan == null)
+            return NotFound();
+    
+        return Ok(plan);
+    }
 }
