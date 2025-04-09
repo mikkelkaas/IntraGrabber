@@ -22,7 +22,6 @@ public class WeekPlansService(IHttpClientFactory clientFactory, IOptions<IntraGr
         var weeknumber = ISOWeek.GetWeekOfYear(dayToLookFor);
         logger.LogWarning("Week number: {weeknumber}", weeknumber);
         
-
         var url = string.Format(_options.WeekplanFormatString, _options.ParentId, _options.ChildName, weeknumber,
             dayToLookFor.Year);
         logger.LogWarning("URL: {url}", url);

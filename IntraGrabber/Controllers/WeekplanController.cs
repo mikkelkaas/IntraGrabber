@@ -13,7 +13,7 @@ public class WeekplanController : ControllerBase
 
     // GET api/calendar/json
     [HttpGet("json")]
-    // [ResponseCache(Duration = 43200, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new []{"nextWeek"})]
+    [ResponseCache(Duration = 60*60*6, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new []{"nextWeek"})]
     public async Task<IActionResult> Get(bool nextWeek = false)
     {
         var plan = await _weekPlansService.GetWeekplan(nextWeek);
