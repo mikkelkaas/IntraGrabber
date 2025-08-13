@@ -21,9 +21,8 @@ public static class CalendarConverter
             Uid = calendarItem.Id,
             Summary = summary,
             Location = calendarItem.Location.FirstOrDefault(),
-            Start = new CalDateTime(calendarItem.Start, "Europe/Copenhagen"),
-            End = new CalDateTime(calendarItem.End, "Europe/Copenhagen"),
-            IsAllDay = calendarItem.AllDay
+            Start = calendarItem.AllDay ? new CalDateTime(calendarItem.Start.Date) : new CalDateTime(calendarItem.Start, "Europe/Copenhagen"),
+            End = calendarItem.AllDay ? new CalDateTime(calendarItem.End.Date) : new CalDateTime(calendarItem.End, "Europe/Copenhagen")
         };
     }
 

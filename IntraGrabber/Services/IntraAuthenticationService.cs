@@ -1,5 +1,7 @@
 using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
+using IntraGrabber.Helpers;
 
 namespace IntraGrabber.Services;
 
@@ -17,14 +19,14 @@ internal class IntraAuthenticationService : IIntraAuthenticationService
         _intraGrabberOptions = intraGrabberOptions.Value;
     }
 
-    public async Task<string?> GetLoginCookie()
+    public async Task<IEnumerable<Cookie>> GetLoginCookies()
     {
-        if (!_memoryCache.TryGetValue("AspAuth", out string? cookieValue))
+        if (!_memoryCache.TryGetValue("IntraGrabberAuthCookies", out List<Cookie>? cachedCookies))
         {
             // First, do a request to the login page to get some needed cookies and extract the request verification token
             var initialResponse = await _httpClient.GetAsync(
                 "/Account/IdpLogin?partnerSp=urn%3Aitslearning%3Ansi%3Asaml%3A2.0%3Astenpriv.m.skoleintra.dk");
-            var initialCookies = initialResponse.ExtractCookies();
+            var initialCookies = initialResponse.ExtractCookies().ToList();
             var htmlDocument = new HtmlDocument();
             htmlDocument.LoadHtml(await initialResponse.Content.ReadAsStringAsync());
             var requestVerificationToken = htmlDocument.DocumentNode
@@ -45,6 +47,7 @@ internal class IntraAuthenticationService : IIntraAuthenticationService
             httpRequestMessage.PopulateCookies(initialCookies);
             httpRequestMessage.Content = contentForLogin;
             var loginResponse = await _httpClient.SendAsync(httpRequestMessage);
+            var loginCookies = loginResponse.ExtractCookies().ToList();
 
             // We get an intermediate page with a form that we need to submit
             var intermediateHtmlDocument = new HtmlDocument();
@@ -58,18 +61,35 @@ internal class IntraAuthenticationService : IIntraAuthenticationService
             using var samlResponseContent = new FormUrlEncodedContent(samlResponseParams);
             var samlResponseRequestMessage = new HttpRequestMessage(HttpMethod.Post, "sso/assertionconsumerservice");
 
+            // include cookies from previous steps
+            var accumulatedCookies = new List<Cookie>();
+            accumulatedCookies.AddRange(initialCookies);
+            accumulatedCookies.AddRange(loginCookies);
+            samlResponseRequestMessage.PopulateCookies(accumulatedCookies);
             samlResponseRequestMessage.Content = samlResponseContent;
 
             // Now we get the final page with the cookie we need
             var samlResponseResponse = await _httpClient.SendAsync(samlResponseRequestMessage);
-            var finalCookies = samlResponseResponse.ExtractCookies();
-            // get the value of the cookie with name _calendarOptions.CookieName
-            cookieValue = finalCookies.Where(x => x.Name == _intraGrabberOptions.CookieName).Select(x => x.Value)
-                .FirstOrDefault();
+            var finalCookies = samlResponseResponse.ExtractCookies().ToList();
 
-            _memoryCache.Set("AspAuth", cookieValue, new DateTimeOffset(DateTime.Now.AddHours(1)));
+            // Combine and de-duplicate cookies by name
+            var allCookies = new List<Cookie>();
+            foreach (var c in initialCookies.Concat(loginCookies).Concat(finalCookies))
+            {
+                var existing = allCookies.FirstOrDefault(x => x.Name == c.Name);
+                if (existing != null)
+                {
+                    // replace with the latest value
+                    allCookies.Remove(existing);
+                }
+                allCookies.Add(c);
+            }
+
+            // Cache the full set for reuse
+            _memoryCache.Set("IntraGrabberAuthCookies", allCookies, new DateTimeOffset(DateTime.Now.AddHours(1)));
+            cachedCookies = allCookies;
         }
 
-        return cookieValue;
+        return cachedCookies ?? Enumerable.Empty<Cookie>();
     }
 }

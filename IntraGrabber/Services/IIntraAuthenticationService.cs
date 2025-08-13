@@ -1,7 +1,9 @@
-﻿namespace IntraGrabber.Services;
+﻿using System.Net;
+
+namespace IntraGrabber.Services;
 
 public interface IIntraAuthenticationService
 {
-    Task<string?> GetLoginCookie();
+    Task<IEnumerable<Cookie>> GetLoginCookies();
 
 }
