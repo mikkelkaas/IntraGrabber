@@ -15,6 +15,33 @@ public class PinService : IPinService
         _options = options.Value;
     }
 
+    private static readonly string[] DanishMonths =
+        ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+
+    /// <summary>
+    /// Parses ForældreIntra timestamps like "30. okt. 2026 12:31" or "4. maj 2026 08:00".
+    /// Uses an explicit month table so it works regardless of the container's ICU/culture data.
+    /// </summary>
+    internal static DateTime? ParseDanishDate(string text)
+    {
+        var m = System.Text.RegularExpressions.Regex.Match(text,
+            @"(\d{1,2})\.\s*([a-zæøå]{3})[a-zæøå]*\.?\s*(\d{4})(?:\s+(\d{1,2}):(\d{2}))?",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (!m.Success) return null;
+        var month = Array.IndexOf(DanishMonths, m.Groups[2].Value.ToLowerInvariant()) + 1;
+        if (month == 0) return null;
+        var hour = m.Groups[4].Success ? int.Parse(m.Groups[4].Value) : 0;
+        var minute = m.Groups[5].Success ? int.Parse(m.Groups[5].Value) : 0;
+        try
+        {
+            return new DateTime(int.Parse(m.Groups[3].Value), month, int.Parse(m.Groups[1].Value), hour, minute, 0);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return null;
+        }
+    }
+
     public async Task<IEnumerable<PinItem>> GetPinItems()
     {
         var response =
@@ -36,9 +63,8 @@ public class PinService : IPinService
                     var pinItem = new PinItem();
                     pinItem.CreatedText = HttpUtility.HtmlDecode(pinNode.SelectSingleNode(".//div[contains(@class, 'sk-news-item-timestamp')]")
                         .InnerText).Trim();
-                    // convert a text like this 23. aug. 2023 08:19 to local datetime
-                    pinItem.Created = DateTime.ParseExact(pinItem.CreatedText, "d. MMM. yyyy HH:mm",
-                        CultureInfo.InvariantCulture);
+                    // convert a text like this "23. aug. 2023 08:19" (Danish month names) to local datetime
+                    pinItem.Created = ParseDanishDate(pinItem.CreatedText) ?? DateTime.MinValue;
                     
                     var authorNode = pinNode.SelectSingleNode(".//div[contains(@class, 'sk-news-item-author')]");
                     pinItem.Author = authorNode.SelectSingleNode(".//span").InnerText;
